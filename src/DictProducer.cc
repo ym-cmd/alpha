@@ -13,7 +13,7 @@ DictProducer::DictProducer(const string& dir, SplitTool* cuttor) {
 } 
 
 inline static bool isPunctuation(char c) {
-    return ispunct(c) || c == '\r'; // 判断是否为标点符号或 \r
+    return ispunct(c) || c == '\r' || c == '\n'; // 判断是否为标点符号或 \r 或 \n
 }
 
 void DictProducer::buildEndict() {
@@ -27,9 +27,10 @@ void DictProducer::buildEndict() {
     for (const string& enfilepath : _enfiles) {
         // 打开文件
         ifstream ifs(enfilepath);
-        if (ifs.is_open()) {
-            std::cerr << "Failed to open file!" << '\n';
+        if (!ifs.is_open()) {
+            std::cerr << "Failed to open " << enfilepath << "!" << '\n';
             // log() to zsh and .log
+            continue;
         }
 
         string word, line;
@@ -49,6 +50,8 @@ void DictProducer::buildEndict() {
                 ++dictmap[word];
             }
         }
+
+        ifs.close();
 
     }
 

@@ -7,7 +7,7 @@ using std::string; using std::vector;
 class SplitTool {
 public:
     SplitTool();
-    virtual vector<string> cut(const string& sentence) = 0;
+    virtual vector<string> cut() = 0;
     virtual ~SplitTool();
 };
 
@@ -16,8 +16,8 @@ public:
 class Configuration;
 class SplitToolCppjieba : public SplitTool {
 public:
-    SplitToolCppjieba();
-    vector<string> cut(const string& sentence) override; 
+    SplitToolCppjieba(Configuration conf);
+    vector<string> cut() override; 
     virtual ~SplitToolCppjieba();
 private:
     Configuration& _conf; 
