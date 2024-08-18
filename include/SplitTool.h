@@ -1,24 +1,34 @@
 #pragma once
 
+#include "../include/cppjieba/Jieba.hpp"
+
 #include <string>
 #include <vector>
+
 using std::string; using std::vector;
 
 class SplitTool {
 public:
-    SplitTool();
-    virtual vector<string> cut() = 0;
-    virtual ~SplitTool();
+    SplitTool() {}
+    virtual vector<string> cut(const string& cnfileContent) = 0;
+    virtual ~SplitTool() {}
 };
 
 
-// 从Configuration中读取语料，清洗后保存为vector<string>返回
-class Configuration;
+// 用饿汉模式做单例
 class SplitToolCppjieba : public SplitTool {
 public:
-    SplitToolCppjieba(Configuration conf);
-    vector<string> cut() override; 
-    virtual ~SplitToolCppjieba();
+    static SplitToolCppjieba* getInstance();
+    vector<string> cut(const string& cnfileContent) override; 
 private:
-    Configuration& _conf; 
+    SplitToolCppjieba();
+    static void destroy();
+    virtual ~SplitToolCppjieba();
+
+    SplitToolCppjieba(const SplitToolCppjieba& rhs) = delete;
+    SplitToolCppjieba& operator=(const SplitToolCppjieba& rhs) = delete;
+
+private:
+    static SplitToolCppjieba* _pInstance;
+    cppjieba::Jieba* _jieba;
 };

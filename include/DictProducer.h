@@ -1,30 +1,46 @@
 #include <vector>
 #include <string>
-#include <set>
+#include <unordered_set>
 #include <iostream>
-#include <map>
-using std::vector; using std::string; using std::pair; using std::set; using std::map;
+
+#include <unordered_map>
+using std::vector; 
+using std::string; 
+using std::pair; 
+using std::unordered_set; 
+using std::unordered_map;
 
 class SplitTool;
 
+// 中文用编辑距离，需要词典 + 词典索引
+// 英文用trie树，需要词典，不需要词典索引
 class DictProducer {  
 public:
-    DictProducer(const string& dir);
-    DictProducer(const string& dir, SplitTool* cuttor); // 专为中文处理
+    DictProducer();
+    DictProducer(SplitTool* cuttor); // 专为中文处理
     void buildEndict(); // 创建英文词典
     void buildCndict(); // 创建中文词典
-    void storeDict(const char* filepa); // 将词典写入文件
+    void storeCnDict(); // 将中文词典写入文件
+    
+
+    // 测试
+
+    // 将中文词典生成词典索引
+    void buildCnDictIndex();
+
+    // 将索引生成中文词典索引文件
+    void storeCnDictIndex();
     
     void showFiles() const; // 查看文件路径，作为测试用
     void showDict() const; // 查看词典，作为测试用
-
-    void getFiles(); // 获取文件的绝对路径
-    void pushDict(const string& word); // 存储某个单词 
-
 private:
-    vector<string> _cnfiles; // 语料库中文文件的绝对路径集合
-    vector<string> _enfiles; // 语料库英文文件的绝对路径集合
-    vector<pair<string, int>> _dict; // 中英文词典
-    map<string, set<int>> _index; // 词典索引
+    // string enfiledir = ""; // 语料库英文文件的文件夹路径
+    // string cnfiledir = ""; // 语料库中文文件的文件夹路径 
+
+    // vector<string> _cnfiles; // 语料库中文文件的绝对路径集合
+    // vector<string> _enfiles; // 语料库英文文件的绝对路径集合
+
+    vector<pair<string, int>> _cndict; // 中文词典
+    unordered_map<string, unordered_set<int>> _cnindex; // 中文词典索引
     SplitTool* _cuttor; // 分词工具
 };

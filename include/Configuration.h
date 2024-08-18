@@ -6,12 +6,11 @@
 
 using std::string; using std::unordered_map;
 
-const string configFilePath = "../conf/myconf.json";
-
 class Configuration {
 public:
     static Configuration* getInstance();
     unordered_map<string, string>& getConfigMap();
+    const string getConfigValStr(const string& configkeystr) const;
 
 private:
     Configuration(const string configFilePath);
@@ -28,6 +27,3 @@ private:
     unordered_map<string, string> _configs;
     string _configFilePath;
 };
-
-Configuration* Configuration::_pInstance = nullptr;
-pthread_once_t Configuration::_once = PTHREAD_ONCE_INIT;
