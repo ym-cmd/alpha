@@ -1,19 +1,25 @@
 
-#include "../include/Configuration.h"
-#include "../include/DictProducer.h"
-#include "../include/SplitTool.h"
+#include "../include/PagePreprocessor.h"
+
 #include <bits/stdc++.h>
 using namespace std;
 
 int main() {
-    // 
-    DictProducer dicp(SplitToolCppjieba::getInstance());
+    // 模块二
+    PagePreprocessor processor;
+    processor.xmlClean();
+    processor.cutRedundantPage();
 
-    dicp.buildEndict();
-    dicp.buildCndict();
-    dicp.storeCnDict();
-    dicp.buildCnDictIndex();
-    dicp.storeCnDictIndex();
+
+
+    // 模块一
+    // DictProducer dicp(SplitToolCppjieba::getInstance());
+
+    // dicp.buildEndict();
+    // dicp.buildCndict();
+    // dicp.storeCnDict();
+    // dicp.buildCnDictIndex();
+    // dicp.storeCnDictIndex();
 
     return 0;
 }

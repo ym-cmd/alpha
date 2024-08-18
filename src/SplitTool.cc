@@ -12,11 +12,11 @@ using std::stringstream;
 
 namespace fs = std::filesystem;
 
-const char* const DICT_PATH = "../include/dict/jieba.dict.utf8";
-const char* const HMM_PATH = "../include/dict/hmm_model.utf8";
-const char* const USER_DICT_PATH = "../include/dict/user.dict.utf8";
-const char* const IDF_PATH = "../include/dict/idf.utf8";
-const char* const STOP_WORD_PATH = "../include/dict/stop_words.utf8";
+const char* const DICT_PATH = "../include/simhash/dict/jieba.dict.utf8";
+const char* const HMM_PATH = "../include/simhash/dict/hmm_model.utf8";
+const char* const USER_DICT_PATH = "../include/simhash/dict/user.dict.utf8";
+const char* const IDF_PATH = "../include/simhash/dict/idf.utf8";
+const char* const STOP_WORD_PATH = "../include/simhash/dict/stop_words.utf8";
 
 
 SplitToolCppjieba* SplitToolCppjieba::_pInstance = SplitToolCppjieba::getInstance();
@@ -43,7 +43,7 @@ vector<string> SplitToolCppjieba::cut(const string& cnfileContent){
 }
 
 SplitToolCppjieba::SplitToolCppjieba()
-: _jieba(new cppjieba::Jieba(DICT_PATH, HMM_PATH, USER_DICT_PATH, IDF_PATH, STOP_WORD_PATH))
+: _jieba(new cppjieba::Jieba(DICT_PATH, HMM_PATH, USER_DICT_PATH))
 {}
 
 void SplitToolCppjieba::destroy() {

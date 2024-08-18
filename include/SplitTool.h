@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../include/cppjieba/Jieba.hpp"
+#include "../include/simhash/simhash/cppjieba/Jieba.hpp"
 
 #include <string>
 #include <vector>

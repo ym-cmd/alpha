@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <string>
 #include <unordered_set>
@@ -42,5 +44,5 @@ private:
 
     vector<pair<string, int>> _cndict; // 中文词典
     unordered_map<string, unordered_set<int>> _cnindex; // 中文词典索引
-    SplitTool* _cuttor; // 分词工具
+    SplitTool* _cuttor; // 分词工具(其实为了高拓展性，本来可以直接用单例的)
 };
