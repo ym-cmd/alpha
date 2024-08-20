@@ -30,7 +30,7 @@ SplitToolCppjieba* SplitToolCppjieba::getInstance() {
 }
 
 
-// 对每个文件进行清洗换行符，英文词
+// 对每个文件进行清洗换行符，中文词
 vector<string> SplitToolCppjieba::cut(const string& cnfileContent){
 
     // 分词后的中文语料

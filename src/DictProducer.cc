@@ -149,13 +149,13 @@ void DictProducer::buildCndict() {
 
     // 将停用词全部读取到unordered_set里，后面用于过滤
     unordered_map<string, int> dictmap;
-    const string stop_words_eng = Configuration::getInstance()->getConfigValStr("stop_words_eng");
+    const string stop_words_zh = Configuration::getInstance()->getConfigValStr("stop_words_zh");
     unordered_set<string> stopwords;
 
     // 打开停用词文件
-    ifstream ifs(stop_words_eng);
+    ifstream ifs(stop_words_zh);
     if (!ifs.is_open()) {
-        std::cerr << "no stop_words_eng\n";
+        std::cerr << "no stop_words_zh\n";
     }
 
     // 打开停用词文件成功

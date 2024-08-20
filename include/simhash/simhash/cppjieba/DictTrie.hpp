@@ -118,7 +118,7 @@ class DictTrie {
         }
       }
     }
-    XLOG(INFO) << "load userdicts " << filePaths << ", lines: " << lineno;
+    //XLOG(INFO) << "load userdicts " << filePaths << ", lines: " << lineno;
   }
 
   bool MakeNodeInfo(DictUnit& node_info,

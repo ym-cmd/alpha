@@ -1,25 +1,33 @@
 
 #include "../include/PagePreprocessor.h"
+#include "../include/SplitTool.h"
+#include "../include/DictProducer.h"
 
 #include <bits/stdc++.h>
 using namespace std;
 
 int main() {
     // 模块二
-    PagePreprocessor processor;
-    processor.xmlClean();
-    processor.cutRedundantPage();
+    auto start = std::chrono::high_resolution_clock::now();
 
+    PagePreprocessor processor(SplitToolCppjieba::getInstance());
+    processor.xmlCleanAndCutRedundantPage();
+    processor.buildInvertIndexMap();
 
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+   
 
     // 模块一
-    // DictProducer dicp(SplitToolCppjieba::getInstance());
+    DictProducer dicp(SplitToolCppjieba::getInstance());
 
-    // dicp.buildEndict();
-    // dicp.buildCndict();
-    // dicp.storeCnDict();
-    // dicp.buildCnDictIndex();
-    // dicp.storeCnDictIndex();
+    dicp.buildEndict();
+    dicp.buildCndict();
+    dicp.storeCnDict();
+    dicp.buildCnDictIndex();
+    dicp.storeCnDictIndex();
+
+    std::cout << "Module two execution time: " << duration.count() << " ms" << '\n';
 
     return 0;
 }

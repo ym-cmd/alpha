@@ -13,9 +13,7 @@
     "cnxmldir"           : "/home/yim/cpp/boost/alpha/data/corpus/cnxml",
     
     "offsetPath"         : "/home/yim/cpp/boost/alpha/data/offset.dat",
-    "ripepagePath"       : "/home/yim/cpp/boost/alpha/data/ripepage.dat",
-    "nodupoffsetPath"    : "/home/yim/cpp/boost/alpha/data/nodupoffset.dat",
-    "noduppagePath"      : "/home/yim/cpp/boost/alpha/data/noduppage.dat",
+    "pagePath"       : "/home/yim/cpp/boost/alpha/data/page.dat",
 
     
     "simhash_jieba.dict" : "/home/yim/cpp/boost/alpha/include/simhash/dict/jieba.dict.utf8",
