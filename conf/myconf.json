@@ -1,25 +1,11 @@
-{   
-    "enfiledir"          : "/home/yim/cpp/boost/alpha/data/corpus/en", 
-    "cnfiledir"          : "/home/yim/cpp/boost/alpha/data/corpus/cn",
-    "cndictpath"         : "/home/yim/cpp/boost/alpha/data/cndict.dat",
-    "endictpath"         : "/home/yim/cpp/boost/alpha/data/endict.dat",
-    "cndictIndexPath"    : "/home/yim/cpp/boost/alpha/data/cndictIndex.dat",
-
-
+{
     "stop_words_eng"     : "/home/yim/cpp/boost/alpha/data/corpus/stop_words_eng.txt",
     "stop_words_zh"      : "/home/yim/cpp/boost/alpha/data/corpus/stop_words_zh.txt",
+    "invertIndex"        : "/home/yim/cpp/boost/alpha/offline/data/invertindex.dat",
+    "offsetIndex"        : "/home/yim/cpp/boost/alpha/offline/data/offset.dat",
+    "page"               : "/home/yim/cpp/boost/alpha/offline/data/page.dat",
 
-
-    "cnxmldir"           : "/home/yim/cpp/boost/alpha/data/corpus/cnxml",
-    
-    "offsetPath"         : "/home/yim/cpp/boost/alpha/data/offset.dat",
-    "pagePath"       : "/home/yim/cpp/boost/alpha/data/page.dat",
-
-    
-    "simhash_jieba.dict" : "/home/yim/cpp/boost/alpha/include/simhash/dict/jieba.dict.utf8",
-    "simhash_hmm_model"  : "/home/yim/cpp/boost/alpha/include/simhash/dict/hmm_model.utf8",
-    "simhash_idf"        : "/home/yim/cpp/boost/alpha/include/simhash/dict/idf.utf8",
-    "simhash_stop_words" : "/home/yim/cpp/boost/alpha/include/simhash/dict/stop_words.utf8",
-
-    "invertindex"        : "/home/yim/cpp/boost/alpha/data/invertindex.dat"
-}
+    "cndictpath"         : "/home/yim/cpp/boost/alpha/offline/data/cndict.dat",
+    "endictpath"         : "/home/yim/cpp/boost/alpha/offline/data/endict.dat",
+    "cndictIndexPath"    : "/home/yim/cpp/boost/alpha/offline/data/cndictIndex.dat"
+}   

@@ -11,10 +11,7 @@ Configuration* Configuration::_pInstance = nullptr;
 pthread_once_t Configuration::_once = PTHREAD_ONCE_INIT;
 
 Configuration* Configuration::getInstance() {
-    if (_pInstance == nullptr) {
-        atexit(destroy);
-        _pInstance = new Configuration(ConfigFilePath);
-    }
+    pthread_once(&_once, init_r);
     return _pInstance;
 }
 

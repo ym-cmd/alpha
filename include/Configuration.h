@@ -6,7 +6,8 @@
 
 using std::string; using std::unordered_map;
 
-class Configuration {
+// 单例模式 
+class Configuration { 
 public:
     static Configuration* getInstance();
     unordered_map<string, string>& getConfigMap();

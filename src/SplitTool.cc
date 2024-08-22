@@ -19,6 +19,7 @@ const char* const IDF_PATH = "../include/simhash/dict/idf.utf8";
 const char* const STOP_WORD_PATH = "../include/simhash/dict/stop_words.utf8";
 
 
+// 饿汉模式
 SplitToolCppjieba* SplitToolCppjieba::_pInstance = SplitToolCppjieba::getInstance();
 
 SplitToolCppjieba* SplitToolCppjieba::getInstance() {
