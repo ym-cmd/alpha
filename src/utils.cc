@@ -183,3 +183,12 @@ bool utils::isChinese(const std::string& word) {
     }
     return false;
 }
+
+void utils::addHttpHead(string& str) {
+    const string startLine = "HTTP/1.1 200 OK\r\n";
+    const string headers = "Server: MyHttpServer1.0\r\n"
+                        "Content-Type: text/html\r\n"
+                        "Content-Length: ";
+    const string emptyLine = "\r\n";
+    str = startLine + headers + std::to_string(str.size()) + "\r\n" + emptyLine + str;
+}

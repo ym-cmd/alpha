@@ -1,9 +1,10 @@
-#include "../include/WebPageQuery.h"
+#include "../include/net/EchoServer.h"
 #include <bits/stdc++.h>
 using namespace std;
 
 int main() {
-    // WebPageQuery::getInstance();
-    // std::cout << "没毛病！\n";
+    EchoServer server(4, 10, "192.168.137.146", 8888);
+    server.start();
+    return 0;
     return 0;
 }

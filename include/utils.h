@@ -18,6 +18,7 @@ public:
     std::size_t nBytesCode(const char ch);
     int editDistance(const std::string& lhs, const std::string& rhs);
     bool isChinese(const std::string& word);
+    void addHttpHead(string& str);
 
 
 private:

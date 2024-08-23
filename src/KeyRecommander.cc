@@ -56,15 +56,24 @@ std::string KeyRecommander::doQuery(const std::string& keys) {
             character.insert(keys.substr(i, 3));
         }
 
+        
+
         // 利用索引_indexTable找到其在字典中对应的下标
         // 将该下标的词读入unordered_map<string, int>里
         for (const string& str : character) {
+            // std::cerr << "str = " << str << '\n';
             if (_indexTable.find(str) != _indexTable.end()) {
                 for(const int idx : _indexTable[str]) {
                     candidateKeys[_dict[idx].first] = _dict[idx].second;
                 }
             }
         }
+
+        
+        // for (const auto& pair : candidateKeys) {
+        //     std::cerr << "string = " << pair.first << '\n';
+        //     std::cerr << "frq = " << pair.second << '\n';
+        // }
 
         if (candidateKeys.size() == 0) return returnNoAnswer();
 
@@ -76,8 +85,8 @@ std::string KeyRecommander::doQuery(const std::string& keys) {
         }
         // 取出前10个词组成vector
         vector<string> result;
-        int i = 10;
-        while (!pq.empty() || i == 0) {
+        int i = 0;
+        while (!pq.empty() && i != 10) {
             result.push_back(std::get<0>(pq.top()));
             pq.pop();
             ++i;
@@ -113,7 +122,8 @@ string KeyRecommander::createJson(const vector<string>& result) {
     for (const auto& word : result) {
         arr.push_back(word);
     }
-    root["words"] = arr;    
+    root["words"] = arr;
+    return root.dump();    
 }
 
 

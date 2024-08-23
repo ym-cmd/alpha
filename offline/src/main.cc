@@ -10,18 +10,25 @@ int main() {
     // 模块二
     auto start = std::chrono::high_resolution_clock::now();
 
-    PagePreprocessor processor(SplitToolCppjieba::getInstance());
-    processor.xmlCleanAndCutRedundantPage();
-    processor.buildInvertIndexMap();
+    // PagePreprocessor processor(SplitToolCppjieba::getInstance());
+    // processor.xmlCleanAndCutRedundantPage();
+    // processor.buildInvertIndexMap();
 
     
 
     // 模块一
     DictProducer dicp(SplitToolCppjieba::getInstance());
 
-    dicp.buildEndict();
+    //dicp.buildEndict();
     dicp.buildCndict();
     dicp.storeCnDict();
+    // int i = 0;
+    // for (const auto& elem : dicp._cndict) {
+    //     cerr << "i = " << i << "string = " << elem.first << '\n';
+    //     i++;
+    // }
+
+
     dicp.buildCnDictIndex();
     dicp.storeCnDictIndex();
 

@@ -120,13 +120,15 @@ inline static void cleanOut(string& str) {
             // 如果是换行符或英文，跳过
             ++i;
         } else {
-            // 如果是中文字符 (UTF-8)，假设是三字节编码，复制三个字节
-            if (i + 2 < len) {
-                str[j++] = str[i];
-                str[j++] = str[i + 1];
-                str[j++] = str[i + 2];
-            }
-            i += 3; // 移动到下一个字符（中文字符是3字节的）
+            str[j++] = str[i++];
+            // 这部分不知道为什么没有将空行去除
+            // // 如果是中文字符 (UTF-8)，假设是三字节编码，复制三个字节
+            // if (i + 2 < len) {
+            //     str[j++] = str[i]; 
+            //     str[j++] = str[i + 1];
+            //     str[j++] = str[i + 2];
+            // }
+            // i += 3; // 移动到下一个字符（中文字符是3字节的）
         }
     }
 
@@ -247,6 +249,7 @@ static size_t getByteNum_UTF8(const char byte) {
     return byteNum == 0 ? 1 : byteNum;
 }
 
+// 这有问题
 void DictProducer::buildCnDictIndex() {
     //  vector<pair<string, int>> >> unordered_map<string, unordered_set<int>>
 
@@ -265,6 +268,30 @@ void DictProducer::buildCnDictIndex() {
         ++i;
     }
 }
+
+
+// void DictProducer::buildCnDictIndex() {
+//     // vector<pair<string, int>> >> unordered_map<string, unordered_set<int>>
+
+//     int i = 0; // 记录下标
+//     for (const auto& elem : _cndict) {
+//         const std::string& word = elem.first;  // 中文单词
+//         int frequency = elem.second;           // 词频 (可选)
+
+//         size_t idx = 0;
+//         while (idx < word.size()) {
+//             size_t charlen = getByteNum_UTF8(word[idx]); // 获取字符的字节长度
+//             std::string subword = word.substr(idx, charlen); // 提取字符
+
+//             _cnindex[subword].insert(i); // 插入到 unordered_map 中
+
+//             idx += charlen; // 更新索引，跳过当前字符的字节长度
+//         }
+
+//         ++i; // 更新下标，指向下一个词条
+//     }
+// }
+
 
 
 // unordered_map<string, unordered_set<int>> >> .dat

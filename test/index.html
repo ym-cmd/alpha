@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Search Engine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        input[type="button"] {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .result {
+            text-align: left;
+            margin: 20px auto;
+            width: 60%;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .result h2 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .result p {
+            font-size: 14px;
+            color: #555;
+        }
+        .result a {
+            color: #1a0dab;
+            text-decoration: none;
+        }
+        .result a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Search Engine</h1>
+    <input type="text" id="search-box" placeholder="Enter your search query..." />
+    <input type="button" value="Search" onclick="performSearch()" />
+    <div id="suggestions"></div>
+    <div id="results"></div>
+
+    <script>
+        const ip = "192.168.137.146";
+        const port = 8888;
+
+        // Function to handle real-time suggestions
+        document.getElementById('search-box').addEventListener('input', function() {
+            const query = this.value;
+            if (query.length > 0) {
+                fetch(`http://${ip}:${port}/recommend`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: query })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    displaySuggestions(data.words);
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                document.getElementById('suggestions').innerHTML = '';
+            }
+        });
+
+        // Function to display suggestions
+        function displaySuggestions(words) {
+            const suggestionsDiv = document.getElementById('suggestions');
+            suggestionsDiv.innerHTML = '';
+            words.forEach(word => {
+                const suggestion = document.createElement('div');
+                suggestion.textContent = word;
+                suggestion.onclick = function() {
+                    document.getElementById('search-box').value = word;
+                    performSearch();
+                };
+                suggestionsDiv.appendChild(suggestion);
+            });
+        }
+
+        // Function to perform the search
+        function performSearch() {
+            const query = document.getElementById('search-box').value;
+            if (query.length > 0) {
+                fetch(`http://${ip}:${port}/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: query })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    displayResults(data.files);
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+
+        // Function to display search results
+        function displayResults(files) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            files.forEach(file => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result';
+                resultDiv.innerHTML = `
+                    <h2><a href="${file.url}" target="_blank">${file.title}</a></h2>
+                    <p>${file.content}</p>
+                `;
+                resultsDiv.appendChild(resultDiv);
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -35,7 +35,7 @@ public:
     
     void showFiles() const; // 查看文件路径，作为测试用
     void showDict() const; // 查看词典，作为测试用
-private:
+//private:
     // string enfiledir = ""; // 语料库英文文件的文件夹路径
     // string cnfiledir = ""; // 语料库中文文件的文件夹路径 
 
