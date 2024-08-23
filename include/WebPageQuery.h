@@ -19,6 +19,11 @@ private:
     WebPageQuery();
     void loadInvertIndex();
     void loadOffsetIndex();
+    struct Compare {
+        bool operator()(const std::pair<double, int>& a, const std::pair<double, int>& b) const {
+            return a.first < b.first; // 这里 a.first < b.first 表示越大的 double 优先级越高
+        }
+    };
 
     WebPageQuery(const WebPageQuery& rhs) = delete;
     WebPageQuery& operator=(const WebPageQuery& rhs) = delete;

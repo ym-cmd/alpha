@@ -73,6 +73,7 @@ void utils::init_r() {
 unordered_map<string, int> utils::filterStopWords(const std::vector<string>& vec) {
     unordered_map<string, int> result;
     for (const auto& str : vec) {
+        // 非停用词
         if (_cnStopWordList.find(str) == _cnStopWordList.end()) {
             ++result[str];
         }
@@ -86,29 +87,30 @@ double utils::TF_IDF(int TF, int DF, size_t N) {
               
 string utils::extractTagContent(const string& doc, const string& tag) {
 
-    std::regex re("<" + tag + ">(.*?)</" + tag + ">");
-    std::smatch match;
-    if (std::regex_search(doc, match, re)) {
-        return match[1];
+    // 处理不了空格
+    // std::regex re("<" + tag + ">(.*?)</" + tag + ">");
+    // std::smatch match;
+    // if (std::regex_search(doc, match, re)) {
+    //     return match[1];
+    // }
+    // return "";
+
+    string start_tag = "<" + tag + ">";
+    string end_tag = "</" + tag +">";
+
+    size_t start_pos = doc.find(start_tag);
+    if (start_pos == std::string::npos) {
+        return "";  // 找不到标签
     }
-    return "";
 
-    // string start_tag = "<content>";
-    // string end_tag = "</content>";
+    start_pos += start_tag.length();  // 跳过起始标签
+    size_t end_pos = doc.find(end_tag, start_pos);
+    if (end_pos == std::string::npos) {
+        return "";  // 找不到结束标签
+    }
 
-    // size_t start_pos = content.find(start_tag);
-    // if (start_pos == std::string::npos) {
-    //     return "";  // 找不到标签
-    // }
-
-    // start_pos += start_tag.length();  // 跳过起始标签
-    // size_t end_pos = content.find(end_tag, start_pos);
-    // if (end_pos == std::string::npos) {
-    //     return "";  // 找不到结束标签
-    // }
-
-    // // 提取标签中的内容
-    // return content.substr(start_pos, end_pos - start_pos);
+    // 提取标签中的内容
+    return doc.substr(start_pos, end_pos - start_pos);
 }
 
 std::size_t utils::length(const std::string& str) {

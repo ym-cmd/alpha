@@ -36,9 +36,10 @@ void WebPageQuery::generateBaseVectors(vector<double>& base, const unordered_map
     double sumOfSquares = 0.0;
     for (const auto& pair : afterCleanWords) {
         double weight = IDF * pair.second;
-        base[0] = weight;
+        base[idx++] = weight;
 
-        sumOfSquares += weight;
+        sumOfSquares += (weight * weight);
+        
     }
 
     // 归一化
@@ -67,6 +68,7 @@ vector<int> findCommonIDs(const vector<set<pair<int, double>>>& sets) {
                               std::inserter(temp, temp.begin()));
         commonIDs = std::move(temp);
     }
+    return vector<int>(commonIDs.begin(), commonIDs.end());
 }
 
 // 计算两个向量的余弦相似度
@@ -81,13 +83,14 @@ double countCosineSimilarity(const std::vector<double>& A, const std::vector<dou
 }
 
 string WebPageQuery::doQuery(string keys) {
-    const string& offsetIndexFile = Configuration::getInstance()->getConfigValStr("offsetIndex");
-    ifstream offsetIfs(offsetIndexFile);
-    if (!offsetIfs.is_open()) {
-        LogError("偏移库文件打开错误");
+    const string& pageFile = Configuration::getInstance()->getConfigValStr("page");
+    std::cout << "page" << pageFile << "\n";
+    ifstream pageIfs(pageFile);
+    if (!pageIfs.is_open()) {
+        LogError("文章文件打开错误");
         exit(1);
     }
-
+ 
     // 分词
     vector<string> afterCutWords = SplitToolCppjieba::getInstance()->cut(keys);
     
@@ -95,13 +98,17 @@ string WebPageQuery::doQuery(string keys) {
     // 词，TF (查询词)
     unordered_map<string, int> afterCleanWords = utils::getInstance()->filterStopWords(afterCutWords);
 
+    for (const auto& pair : afterCleanWords) {
+        std::cerr << "分词后：" <<pair.first << '\n';
+    }
+
     // 用TF-IDF得到每个关键词的权重系数，变成基准向量base0, 然后再归一化变成基准向量base
     vector<double> base(afterCleanWords.size());
     
     // 生成基准向量
     generateBaseVectors(base, afterCleanWords);
 
-    // 找到相同的网页id
+    // 找到相同的网页
     vector<set<pair<int, double>>> wordsSet;
     for (const auto& pair : afterCleanWords) {
         if (_invertIndex.find(pair.first) != _invertIndex.end()) {
@@ -114,10 +121,14 @@ string WebPageQuery::doQuery(string keys) {
         return returnNoAnswer();
     }
 
+    // for (const int elem : commonIDs) {
+    //     std::cerr << elem << '\n';
+    // }
 
+    // std::cerr << "-------------------------------------\n";
     // 计算每个网页的向量和基准向量的余弦相似度，并存入优先队列
-    using DocWeightPair = std::pair<double, int>; // 对应的相似度 文章id，根据相似度来排序
-    priority_queue<DocWeightPair, vector<DocWeightPair>, std::greater<DocWeightPair>> pq;
+    using DocWeightPair = std::pair<double, int>; // 对应的相似度 文章id，根据相似度来排序，相似度越大优先级越高
+    priority_queue<DocWeightPair, vector<DocWeightPair>, Compare> pq;
 
     for (int docId : commonIDs) {
         vector<double> docVector(afterCleanWords.size());
@@ -138,7 +149,7 @@ string WebPageQuery::doQuery(string keys) {
         double cosineSimilarity = countCosineSimilarity(base, docVector);
 
         pq.push({cosineSimilarity, docId});
-        if (pq.size() > 10) {
+        if (pq.size() > 5) {
             pq.pop();
         }
     } // 优先队列保存了余弦相似度最大的10个文章id
@@ -150,22 +161,48 @@ string WebPageQuery::doQuery(string keys) {
         pq.pop();
     }
 
+    // for (int i = 0; i < topDocIDs.size(); ++i) {
+    //     std::cerr << topDocIDs[i] << '\n';
+    // }
     // 根据对应的文章id取出文章
     vector<string> docs(topDocIDs.size());
     int idx = 0;
     for (const auto& val : topDocIDs) {
-        // 移动到文章id对应的offset
-        offsetIfs.seekg(_offsetIndex[val].first, std::ios::beg);
+        // 移动到文章id对应的offset,因为val是真实的id，而下标从0开始，所以要减一
+        std::cerr << pageIfs.rdstate() << "\n";
+        pageIfs.seekg(_offsetIndex[val - 1].first, std::ios::beg);
 
         // 读取对应长度的string放到docs里
-        string buffer(_offsetIndex[val].second, '\0');
-        offsetIfs.read(&buffer[0], _offsetIndex[val].second);
-        docs[idx] = buffer;
+        //string buffer(_offsetIndex[val - 1].second, '\0');
+        
+        //pageIfs.read(&buffer[0], _offsetIndex[val].second);
+        char *buffer = new char [_offsetIndex[val - 1].second + 1]{0};
+        pageIfs.read(buffer, _offsetIndex[val - 1].second);
+        std::cerr << pageIfs.rdstate() << "\n";
+        docs[idx] = string(buffer);
+        std::cerr << buffer << '\n';
 
         // 处理下一篇文章
         ++idx; 
     }
 
+    // for (const string& str : docs) {
+    //     std::cerr << str << '\n\n';
+    // }
+
+    std::cerr << "取完了\n";
+    std::cerr << "topDocIDs.size() = " <<topDocIDs.size() << '\n';
+    std::cerr << "docs.size() = " <<docs.size() << '\n';
+    // for (auto x : docs) {
+    //     std::cerr << x << '\n';
+    // }
+
+
+    
+    // for (int i = 0; i < topDocIDs.size(); ++i) {
+    //     std::cerr << "topDocIDs id = " << topDocIDs[i] << '\n';
+    //     std::cerr << "--------------docs------------------" << '\n' << docs[i] << "\n-----------------------------------\n";
+    // }
     // 生成json并返回
     return createJson(topDocIDs, docs);
 }
@@ -174,6 +211,15 @@ string WebPageQuery::doQuery(string keys) {
 string WebPageQuery::createJson(const vector<int>& topDocIDs, const vector<string>& docs) {
     nlohmann::json root;
     nlohmann::json arr = nlohmann::json::array();
+
+   
+
+    // std::cerr << "-----------------------------------\n";
+    // for (auto& x : docs) {
+    //     std::cerr << x << '\n';
+    // }
+    // std::cerr << "-----------------------------------\n";
+
     for (size_t i = 0; i < topDocIDs.size(); ++i) {
         if (i >= docs.size()) continue;
         
@@ -189,7 +235,11 @@ string WebPageQuery::createJson(const vector<int>& topDocIDs, const vector<strin
 
         arr.push_back(elem);
     }
+
     root["files"] = arr;
+    std::cerr << "返回Json完了\n\n";
+    //string s = ;
+    //std::cerr << s << '\n\n';
     return root.dump();
 }
 
@@ -247,9 +297,9 @@ void WebPageQuery::loadOffsetIndex() {
 
     string line;
     while (std::getline(ifs, line)) {
-        string posStr, lengthStr;
+        string docIDStr, posStr, lengthStr;
         istringstream iss(line);
-        while (iss >> posStr >> lengthStr) {
+        while (iss >> docIDStr >>posStr >> lengthStr) {
             int pos = stoi(posStr);
             int length = stoi(lengthStr);
             _offsetIndex.emplace_back(pos, length);

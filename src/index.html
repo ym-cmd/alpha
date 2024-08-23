@@ -18,9 +18,31 @@
         input[type="button"] {
             padding: 10px 20px;
             font-size: 16px;
+            margin-left: 10px;
+        }
+        #suggestions {
+            margin-top: 10px;
+            width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+            border: 1px solid #ccc;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            position: absolute;
+            z-index: 1000;
+        }
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
         }
         #results {
-            margin-top: 20px;
+            margin-top: 100px;
         }
         .result {
             text-align: left;
@@ -48,85 +70,129 @@
 </head>
 <body>
     <h1>Simple Search Engine</h1>
-    <input type="text" id="search-box" placeholder="Enter your search query..." />
+    <div style="position: relative; display: inline-block;">
+        <input type="text" id="search-box" placeholder="Enter your search query..." autocomplete="off" />
+        <div id="suggestions"></div>
+    </div>
     <input type="button" value="Search" onclick="performSearch()" />
-    <div id="suggestions"></div>
     <div id="results"></div>
 
     <script>
         const ip = "192.168.137.146";
         const port = 8888;
 
-        // Function to handle real-time suggestions
-        document.getElementById('search-box').addEventListener('input', function() {
-            const query = this.value;
+        // 防抖函数，用于减少请求次数
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        // 处理实时推荐
+        document.getElementById('search-box').addEventListener('input', debounce(function() {
+            const query = this.value.trim();
+            const suggestionsDiv = document.getElementById('suggestions');
+
             if (query.length > 0) {
                 fetch(`http://${ip}:${port}/recommend`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({'type':'1',query: query })
+                    body: JSON.stringify({ 'type': '1', 'query': query })
                 })
                 .then(response => response.json())
                 .then(data => {
                     displaySuggestions(data.words);
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    suggestionsDiv.innerHTML = '';
+                });
             } else {
-                document.getElementById('suggestions').innerHTML = '';
+                suggestionsDiv.innerHTML = '';
             }
-        });
+        }, 300)); // 300ms 的防抖延迟
 
-        // Function to display suggestions
+        // 显示推荐结果
         function displaySuggestions(words) {
             const suggestionsDiv = document.getElementById('suggestions');
             suggestionsDiv.innerHTML = '';
-            words.forEach(word => {
-                const suggestion = document.createElement('div');
-                suggestion.textContent = word;
-                suggestion.onclick = function() {
-                    document.getElementById('search-box').value = word;
-                    performSearch();
-                };
-                suggestionsDiv.appendChild(suggestion);
-            });
+
+            if (words && words.length > 0) {
+                words.forEach(word => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.className = 'suggestion-item';
+                    suggestionItem.textContent = word;
+                    suggestionItem.onclick = function() {
+                        document.getElementById('search-box').value = word;
+                        suggestionsDiv.innerHTML = '';
+                        performSearch();
+                    };
+                    suggestionsDiv.appendChild(suggestionItem);
+                });
+            }
         }
 
-        // Function to perform the search
+        // 执行搜索
         function performSearch() {
-            const query = document.getElementById('search-box').value;
+            const query = document.getElementById('search-box').value.trim();
+            const resultsDiv = document.getElementById('results');
+            const suggestionsDiv = document.getElementById('suggestions');
+            resultsDiv.innerHTML = '';
+            suggestionsDiv.innerHTML = '';
+
             if (query.length > 0) {
                 fetch(`http://${ip}:${port}/search`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({'type' : '2' , query: query })
+                    body: JSON.stringify({ 'type': '2', 'query': query })
                 })
                 .then(response => response.json())
                 .then(data => {
                     displayResults(data.files);
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultsDiv.innerHTML = '<p>An error occurred while fetching results.</p>';
+                });
+            } else {
+                resultsDiv.innerHTML = '<p>Please enter a search query.</p>';
             }
         }
 
-        // Function to display search results
+        // 显示搜索结果
         function displayResults(files) {
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
-            files.forEach(file => {
-                const resultDiv = document.createElement('div');
-                resultDiv.className = 'result';
-                resultDiv.innerHTML = `
-                    <h2><a href="${file.url}" target="_blank">${file.title}</a></h2>
-                    <p>${file.content}</p>
-                `;
-                resultsDiv.appendChild(resultDiv);
-            });
+
+            if (files && files.length > 0) {
+                files.forEach(file => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result';
+                    resultDiv.innerHTML = `
+                        <h2><a href="${file.url}" target="_blank">${file.title}</a></h2>
+                        <p>${file.content}</p>
+                    `;
+                    resultsDiv.appendChild(resultDiv);
+                });
+            } else {
+                resultsDiv.innerHTML = '<p>No results found.</p>';
+            }
         }
+
+        // 点击页面其他地方时，隐藏推荐列表
+        document.addEventListener('click', function(event) {
+            const suggestionsDiv = document.getElementById('suggestions');
+            const searchBox = document.getElementById('search-box');
+            if (event.target !== searchBox && !suggestionsDiv.contains(event.target)) {
+                suggestionsDiv.innerHTML = '';
+            }
+        });
     </script>
 </body>
 </html>
-
