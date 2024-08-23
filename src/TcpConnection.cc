@@ -4,6 +4,7 @@
 #include "../include/KeyRecommander.h"
 #include "../include/nlohmann/json.hpp"
 #include "../include/utils.h"
+#include "../include/redis.h"
 
 #include <iostream>
 #include <sstream>
@@ -60,22 +61,84 @@ void TcpConnection::parser(const string& msg) {
     // 获取类型和查询内容
     std::string type = json_msg["type"];
     std::string query = json_msg["query"];
-    string result;
+    
     std::cerr << "type = " << type << '\n';
     std::cerr << "query = " << query << '\n';
+    // 写入redis缓存，下一次查到query的时候就先查redis，有就返回result，否则继续查 query : result
+    redisContext* context = Redis::getInstance()->getcontext();
+    string result;
     if (type == "1") { // 推荐
-        result = KeyRecommander::getInstance()->doQuery(query);
+        // 封装query
+        string redisQuery = "Recommand" + query;
+
+        // 查看redis是否命中
+        redisReply* reply = (redisReply*)redisCommand(context, "GET %s", redisQuery.c_str());
+
+        if (reply == nullptr) {
+            std::cerr << "Redis command failed: " << context->errstr << std::endl;
+            exit(1);
+        }
+
+        if (reply->type == REDIS_REPLY_STRING) {
+            result = reply->str;
+            freeReplyObject(reply);
+            std::cerr << "--------redis命中--------\n";
+        } else { 
+            // 没命中
+            std::cerr << "--------redis没命中--------\n";
+            result = KeyRecommander::getInstance()->doQuery(query);
+            // 加上http请求头
+            utils::getInstance()->addHttpHead(result);
+            // 写入redis
+            freeReplyObject(reply);
+            reply = (redisReply*)redisCommand(context, "SET %s %s", redisQuery.c_str(), result.c_str());
+
+            if (reply == nullptr) {
+                std::cerr << "Redis SET command failed: " << context->errstr << std::endl;
+                exit(1);
+            }
+        
+            freeReplyObject(reply);
+        }
+
     } else if (type == "2") { // 搜索
-        result = WebPageQuery::getInstance()->doQuery(query);
+        // 封装query
+        string redisQuery = "Search" + query;
+
+        // 查看redis是否命中
+        redisReply* reply = (redisReply*)redisCommand(context, "GET %s", redisQuery.c_str());
+
+        if (reply == nullptr) {
+            std::cerr << "Redis command failed: " << context->errstr << std::endl;
+            exit(1);
+        }
+
+        if (reply->type == REDIS_REPLY_STRING) {
+            result = reply->str;
+            freeReplyObject(reply);
+            std::cerr << "--------redis命中--------\n";
+        } else { 
+            // 没命中
+            std::cerr << "--------redis没命中--------\n";
+            result = WebPageQuery::getInstance()->doQuery(query);
+            // 加上http请求头
+            utils::getInstance()->addHttpHead(result);
+            // 写入redis
+            freeReplyObject(reply);
+            reply = (redisReply*)redisCommand(context, "SET %s %s", redisQuery.c_str(), result.c_str());
+
+            if (reply == nullptr) {
+                std::cerr << "Redis SET command failed: " << context->errstr << std::endl;
+                exit(1);
+            }
+        
+            freeReplyObject(reply);
+        }
     } else {
         std::cerr << "Unknown type: " << type << std::endl;
         exit(1);
     }
-
-    // 加上http请求头
-    utils::getInstance()->addHttpHead(result);
-
-    std::cout << result << '\n';
+    //std::cout << result << '\n';
     _sockIO.writen(result.c_str(), result.size());
 }
 

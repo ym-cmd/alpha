@@ -8,7 +8,7 @@ using namespace std;
 
 int main() {
     // 模块二
-    auto start = std::chrono::high_resolution_clock::now();
+    
 
     // PagePreprocessor processor(SplitToolCppjieba::getInstance());
     // processor.xmlCleanAndCutRedundantPage();
@@ -31,7 +31,7 @@ int main() {
 
     dicp.buildCnDictIndex();
     dicp.storeCnDictIndex();
-
+    auto start = std::chrono::high_resolution_clock::now();
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "Module two execution time: " << duration.count() << " ms" << '\n';
